@@ -1,7 +1,7 @@
 import imageCache from "./imageCache";
 import {
     CANVAS_HEIGHT,
-    CANVAS_WIDTH,
+    CANVAS_WIDTH, CONTROL_BAR,
     EDITOR_CANVAS_ID,
     SHIFT_DOWN_BTN, SHIFT_LEFT_BTN, SHIFT_RIGHT_BTN,
     SHIFT_UP_BTN,
@@ -9,13 +9,9 @@ import {
     ZOOM_OUT_BTN
 } from "./constants";
 
-
- function PanZoom() {
-     let imageStore = null;
+function PanZoom() {
      let listenersAdded = false;
-
      let handleFileChange = ( e ) => {
-        // get all selected Files
          if (!listenersAdded) {
              document.getElementById(ZOOM_IN_BTN).addEventListener('click', zoomIn);
              document.getElementById(ZOOM_OUT_BTN).addEventListener('click', zoomOut);
@@ -24,9 +20,8 @@ import {
              document.getElementById(SHIFT_RIGHT_BTN).addEventListener('click', shiftRight);
              document.getElementById(SHIFT_LEFT_BTN).addEventListener('click', shiftLeft);
          }
-        const files = e.target.files;
-         console.log(files[0]);
-        if (files.length) {
+         const files = e.target.files;
+         if (files.length) {
             const reader = new FileReader();
             reader.onload = function( e ) {
                 // create HTMLImageElement holding image data
@@ -36,62 +31,68 @@ import {
                 img.src = reader.result;
                 img.onload = function() {
                     // grab some data from the image
-                    imageStore = new imageCache(img, files[0].name);
+                    if (!imageCache.isCached(files[0].name)) {
+                        imageCache.storeImage(img, files[0].name);
+                    }
                     editorCanvas.width = CANVAS_WIDTH;
                     editorCanvas.height = CANVAS_HEIGHT;
                     const ctx = editorCanvas.getContext('2d');
-                    ctx.drawImage(...imageStore.getCanvasImageParams());
+                    ctx.drawImage(...imageCache.getCanvasImageParams());
                 }
-                // do your magic here...
-                document.getElementById("zoomCtr").classList.remove("hidden");
+
+                //show the Controls after image is loaded
+                document.getElementById(CONTROL_BAR).classList.remove("hidden");
 
             };
             reader.readAsDataURL( files[0] );
-        }
+         }
     }
 
-    let zoomIn = () => {
-         imageStore.zoomIn();
+    function zoomIn() {
+        imageCache.zoomIn();
          setCanvas();
      }
 
-     let zoomOut = () => {
-         imageStore.zoomOut();
+    function zoomOut() {
+        imageCache.zoomOut();
          setCanvas();
      }
 
-     let shiftUp = () => {
-         imageStore.shiftUp();
+     function shiftUp () {
+         imageCache.shiftUp();
          setCanvas();
      }
 
-     let shiftDown = () => {
-         imageStore.shiftDown();
+     function shiftDown() {
+         imageCache.shiftDown();
          setCanvas();
      }
 
-     let shiftRight = () => {
-         imageStore.shiftRight();
+     function shiftRight() {
+         imageCache.shiftRight();
          setCanvas();
      }
 
-     let shiftLeft = () => {
-         imageStore.shiftLeft();
+    function shiftLeft() {
+        imageCache.shiftLeft();
          setCanvas();
      }
 
-     let setCanvas = () => {
+    function setCanvas() {
          let editorCanvas = document.getElementById( EDITOR_CANVAS_ID);
-         editorCanvas.getContext("2d").drawImage(...imageStore.getCanvasImageParams());
+         editorCanvas.getContext("2d").drawImage(...imageCache.getCanvasImageParams());
      }
 
     return {
         handleFileChange: handleFileChange,
         print: function () {
-            imageStore.printImage();
+            imageCache.printImage();
         },
         getImage: function () {
-            return JSON.stringify(imageStore.getImage());
+            return JSON.stringify(imageCache.getImage());
+        },
+        refresh: function () {
+            setCanvas();
         }
     }
 }
