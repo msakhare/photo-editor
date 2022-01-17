@@ -55,7 +55,6 @@ import panZoom from "./panZoom";
          const selectBox = document.getElementById(SELECT_BOX);
          selectBox.oninput = (e) => {
              const index = e.target.value;
-             console.log(index);
              importJson(index);
          }
      }

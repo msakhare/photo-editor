@@ -43,7 +43,6 @@ const AppView = () => {
     document.getElementById(SUBMIT_BTN).addEventListener('click', ()=>{
         imageCache.printImage();
         controlBar.addImportOptions();
-        console.log(imageCache.cache);
         showHideElement(IMPORT_BTN);
         showHideElement(PRINT_MODAL, false);
     });
