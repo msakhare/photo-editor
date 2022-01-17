@@ -24,6 +24,10 @@ const AppView = () => {
 
     // grab DOM elements inside index.html
     fileSelector();
+    addEventListeners();
+}
+
+function addEventListeners() {
     const PRINT_MODAL = "print-modal";
     let showHideElement = (elementId, show = true) => {
         (show)? document.getElementById(elementId).classList.remove("hidden"):
@@ -39,17 +43,13 @@ const AppView = () => {
     document.getElementById("close-modal").addEventListener('click', () => {
         showHideElement(PRINT_MODAL, false);
     });
-
     document.getElementById(SUBMIT_BTN).addEventListener('click', ()=>{
         imageCache.printImage();
         controlBar.addImportOptions();
         showHideElement(IMPORT_BTN);
         showHideElement(PRINT_MODAL, false);
     });
-
     controlBar.addSelectListener();
-
 }
-
 AppView();
 
