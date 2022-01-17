@@ -71,7 +71,6 @@ export default class imageCache {
         this.width = cached.width;
         this.height = cached.height;
         this.ratio = cached.ratio;
-        // this.img = cached.img;
         this.img.src = cached.src;
     }
 

@@ -11,7 +11,29 @@ import {
 
 function PanZoom() {
      let listenersAdded = false;
-     let handleFileChange = ( e ) => {
+     const reader = new FileReader();
+     function readerOnLoad( e , files) {
+         // create HTMLImageElement holding image data
+         let editorCanvas = document.getElementById( EDITOR_CANVAS_ID);
+
+         const img = new Image();
+         img.src = reader.result;
+         img.onload = function() {
+             // grab some data from the image
+             if (!imageCache.isCached(files[0].name)) {
+                 imageCache.storeImage(img, files[0].name);
+             }
+             editorCanvas.width = CANVAS_WIDTH;
+             editorCanvas.height = CANVAS_HEIGHT;
+             const ctx = editorCanvas.getContext('2d');
+             ctx.drawImage(...imageCache.getCanvasImageParams());
+         }
+
+         //show the Controls after image is loaded
+         document.getElementById(CONTROL_BAR).classList.remove("hidden");
+
+     }
+     function handleFileChange( e ) {
          if (!listenersAdded) {
              document.getElementById(ZOOM_IN_BTN).addEventListener('click', zoomIn);
              document.getElementById(ZOOM_OUT_BTN).addEventListener('click', zoomOut);
@@ -22,28 +44,7 @@ function PanZoom() {
          }
          const files = e.target.files;
          if (files.length) {
-            const reader = new FileReader();
-            reader.onload = function( e ) {
-                // create HTMLImageElement holding image data
-                let editorCanvas = document.getElementById( EDITOR_CANVAS_ID);
-
-                const img = new Image();
-                img.src = reader.result;
-                img.onload = function() {
-                    // grab some data from the image
-                    if (!imageCache.isCached(files[0].name)) {
-                        imageCache.storeImage(img, files[0].name);
-                    }
-                    editorCanvas.width = CANVAS_WIDTH;
-                    editorCanvas.height = CANVAS_HEIGHT;
-                    const ctx = editorCanvas.getContext('2d');
-                    ctx.drawImage(...imageCache.getCanvasImageParams());
-                }
-
-                //show the Controls after image is loaded
-                document.getElementById(CONTROL_BAR).classList.remove("hidden");
-
-            };
+            reader.onload = (e) => {readerOnLoad(e, files)};
             reader.readAsDataURL( files[0] );
          }
     }
